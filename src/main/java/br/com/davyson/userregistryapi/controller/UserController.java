@@ -4,6 +4,8 @@ import br.com.davyson.userregistryapi.domain.dto.request.UserRegisterDto;
 import br.com.davyson.userregistryapi.domain.dto.response.UserResponseDto;
 import br.com.davyson.userregistryapi.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,22 +18,20 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-    @PostMapping("/register")
+    @PostMapping
     @Operation(summary = "Criar usuário")
-    public ResponseEntity<Void> createUser(UserRegisterDto request){
+    public ResponseEntity<Void> createUser(@RequestBody @Valid UserRegisterDto request){
         userService.createUser(request);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-
     @GetMapping
-    @Operation(summary = "Buscar usuário pelo E-mail")
-    public ResponseEntity<UserResponseDto> findByEmail(String email){
-        return ResponseEntity.ok().body(userService.findUserByEmail(email));
+    public ResponseEntity<UserResponseDto> findByEmail(@RequestParam String email){
+        return ResponseEntity.status(HttpStatus.OK).body(userService.findUserByEmail(email));
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping("/delete/{id}")
     @Operation(summary = "Deletar usuário")
-    public ResponseEntity<Void> deleteUser(Long id){
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id){
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }

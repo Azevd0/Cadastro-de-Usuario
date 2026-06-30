@@ -17,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final SecurityFilter securityFilter;
@@ -25,15 +26,15 @@ public class SecurityConfig {
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity)throws Exception{
-        String[] publicPaths = {"/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/user", "user/**"};
+        String[] publicPaths = {"/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui/index.html", "/user", "/user/register", "/user/delete"};
 
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configure(httpSecurity))
+                .cors(cors-> cors.configure(httpSecurity))
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.dispatcherTypeMatchers(
-                                DispatcherType.ERROR).permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(publicPaths).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

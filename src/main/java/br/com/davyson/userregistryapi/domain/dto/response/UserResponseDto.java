@@ -7,14 +7,17 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserResponseDto {
+    private Long id;
     private String name;
     private String email;
     private String countType;
 
     public UserResponseDto(){}
     public UserResponseDto(User user) {
-        this.name = name;
-        this.email = email;
-        this.countType = countType;
+        this.id = user.getId();
+        this.name = user.getName();
+        this.email = user.getEmail();
+        this.countType = user.getCountType().name();
     }
+
 }

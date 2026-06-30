@@ -10,6 +10,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -32,15 +33,16 @@ public class SecurityFilter extends OncePerRequestFilter {
             String token = authReader.substring("Bearer ".length());
             Optional<JWTUserData> optUser = tokenConfig.validateToken(token);
 
-        if(optUser.isPresent() || optUser.isEmpty()){
+        if(optUser.isPresent()) {
             JWTUserData jwtUser = optUser.get();
             var authories = List.of(new SimpleGrantedAuthority("COUNT_"+ jwtUser.countType()));
 
             UsernamePasswordAuthenticationToken userPwdAuth = new UsernamePasswordAuthenticationToken(
-                 jwtUser,null, authories
-            );
+                 jwtUser,null, authories);
+            SecurityContextHolder.getContext().setAuthentication(userPwdAuth);
+            }
         }
         filterChain.doFilter(request,response);
-        }
+
     }
 }
