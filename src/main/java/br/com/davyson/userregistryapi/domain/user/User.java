@@ -38,12 +38,12 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("COUNT_" + this.countType.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + this.countType.name()));
     }
 
     @Override
     public String getUsername() {
-        return this.name;
+        return this.email;
     }
 
     @Override

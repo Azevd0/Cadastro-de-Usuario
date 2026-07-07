@@ -1,13 +1,11 @@
 package br.com.davyson.userregistryapi.service;
 
-import br.com.davyson.userregistryapi.config.security.auth.TokenConfig;
 import br.com.davyson.userregistryapi.domain.dto.request.UserRegisterDto;
 import br.com.davyson.userregistryapi.domain.dto.response.UserResponseDto;
 import br.com.davyson.userregistryapi.domain.exceptions.globalexceptions.ObjectNotFoundException;
 import br.com.davyson.userregistryapi.domain.user.User;
 import br.com.davyson.userregistryapi.repository.UserRepoitory;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,9 +36,5 @@ public class UserService {
        User userEmail = userRepoitory.findUserByEmailIgnoreCase(email)
                .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado!"));
        return new UserResponseDto(userEmail);
-    }
-
-    public void deleteUser(Long id){
-        userRepoitory.deleteById(id);
     }
 }

@@ -4,6 +4,7 @@ import br.com.davyson.userregistryapi.config.security.SecurityFilter;
 import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -26,15 +27,16 @@ public class SecurityConfig {
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity)throws Exception{
-        String[] publicPaths = {"/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui/index.html", "/user", "/user/register", "/user/delete"};
+        String[] publicPaths = {"/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui/index.html"};
 
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
-                .cors(cors-> cors.configure(httpSecurity))
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(publicPaths).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
@@ -42,7 +44,7 @@ public class SecurityConfig {
     }
     @Bean
     public PasswordEncoder passwordEncoder(){
-        return new Argon2PasswordEncoder(16,32,2,64000,3);
+        return new Argon2PasswordEncoder(16,32,2,65536,3);
     }
 
     @Bean

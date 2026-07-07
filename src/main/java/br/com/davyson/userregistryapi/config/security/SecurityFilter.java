@@ -1,5 +1,6 @@
 package br.com.davyson.userregistryapi.config.security;
 
+import br.com.davyson.userregistryapi.config.security.auth.AuthConfig;
 import br.com.davyson.userregistryapi.config.security.auth.JWTUserData;
 import br.com.davyson.userregistryapi.config.security.auth.TokenConfig;
 import jakarta.servlet.FilterChain;
@@ -7,39 +8,42 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
-@Configuration
+@Component
 public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenConfig tokenConfig;
+    private final AuthConfig authConfig;
 
-    public SecurityFilter(TokenConfig tokenConfig) {
+    public SecurityFilter(TokenConfig tokenConfig, AuthConfig authConfig) {
         this.tokenConfig = tokenConfig;
+        this.authConfig = authConfig;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String authReader = request.getHeader("Authorization");
-        if(Strings.isNotEmpty(authReader) && authReader.startsWith("Bearer ")){
-            String token = authReader.substring("Bearer ".length());
+        String authorizationHeader = request.getHeader("Authorization");
+        if (Strings.isNotEmpty(authorizationHeader) && authorizationHeader.startsWith("Bearer ")) {
+            String token = authorizationHeader.substring("Bearer ".length());
             Optional<JWTUserData> optUser = tokenConfig.validateToken(token);
 
-        if(optUser.isPresent()) {
-            JWTUserData jwtUser = optUser.get();
-            var authories = List.of(new SimpleGrantedAuthority("COUNT_"+ jwtUser.countType()));
+            if (optUser.isPresent()) {
+                JWTUserData userData = optUser.get();
 
-            UsernamePasswordAuthenticationToken userPwdAuth = new UsernamePasswordAuthenticationToken(
-                 jwtUser,null, authories);
-            SecurityContextHolder.getContext().setAuthentication(userPwdAuth);
+                var userDetails = authConfig.loadUserByUsername(userData.email());
+
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
         }
         filterChain.doFilter(request,response);

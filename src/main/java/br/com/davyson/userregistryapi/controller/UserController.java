@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,15 +26,11 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
     @GetMapping
+    @Operation(summary = "Buscar por E-mail")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponseDto> findByEmail(@RequestParam String email){
-        return ResponseEntity.status(HttpStatus.OK).body(userService.findUserByEmail(email));
-    }
-
-    @DeleteMapping("/delete/{id}")
-    @Operation(summary = "Deletar usuário")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id){
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+        UserResponseDto userEmail = userService.findUserByEmail(email);
+        return ResponseEntity.ok().body(userEmail);
     }
 
 }
