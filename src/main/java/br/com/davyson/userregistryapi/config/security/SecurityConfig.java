@@ -2,6 +2,7 @@ package br.com.davyson.userregistryapi.config.security.auth;
 
 import br.com.davyson.userregistryapi.config.security.SecurityFilter;
 import jakarta.servlet.DispatcherType;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,6 +21,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+    @Value("${api.password.pepper}")
+    private String pepper;
 
     private final SecurityFilter securityFilter;
     public SecurityConfig(SecurityFilter securityFilter){
@@ -44,7 +47,19 @@ public class SecurityConfig {
     }
     @Bean
     public PasswordEncoder passwordEncoder(){
-        return new Argon2PasswordEncoder(16,32,2,65536,3);
+        PasswordEncoder argon2PasswordEncoder = new Argon2PasswordEncoder(16,32,2,65536,3);
+
+        return new PasswordEncoder() {
+            @Override
+            public String encode(CharSequence rawPassword) {
+                return argon2PasswordEncoder.encode(rawPassword + pepper);
+            }
+
+            @Override
+            public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                return argon2PasswordEncoder.matches(rawPassword + pepper, encodedPassword);
+            }
+        };
     }
 
     @Bean
