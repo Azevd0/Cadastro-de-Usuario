@@ -7,6 +7,7 @@ import br.com.davyson.userregistryapi.domain.user.User;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -34,8 +35,8 @@ public class AuthController {
             String token = tokenService.generateToken(user);
 
             return ResponseEntity.ok(new LoginResponseDto(token));
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Usuário ou senha inválidos.");
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialsException(e.getMessage());
         }
     }
 
