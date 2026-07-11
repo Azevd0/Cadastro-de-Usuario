@@ -9,8 +9,27 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5434:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      retries: 5
+      timeout: 5s
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - userauthapi
+
+  caching:
+    image: redis:7-alpine
+    container_name: user_cache_aside
+    ports:
+      - "6379:6379"
+    networks:
+      - userauthapi
 
 volumes:
   pgdata:
+
+networks:
+  userauthapi:
+    driver: bridge

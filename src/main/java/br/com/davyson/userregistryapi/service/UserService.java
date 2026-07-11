@@ -5,6 +5,7 @@ import br.com.davyson.userregistryapi.domain.dto.response.UserResponseDto;
 import br.com.davyson.userregistryapi.domain.exceptions.globalexceptions.ObjectNotFoundException;
 import br.com.davyson.userregistryapi.domain.user.User;
 import br.com.davyson.userregistryapi.repository.UserRepoitory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,7 @@ public class UserService {
 
         userRepoitory.save(newUser);
     }
-
+    @Cacheable(value = "user", key = "'useremail' + #email")
     public UserResponseDto findUserByEmail(String email){
        User userEmail = userRepoitory.findUserByEmailIgnoreCase(email)
                .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado!"));
