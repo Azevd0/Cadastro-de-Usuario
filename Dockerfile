@@ -6,10 +6,14 @@ COPY . .
 
 RUN mvn clean package -DskipTests
 
-
+RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
 FROM public.ecr.aws/lambda/java:21
 
-COPY --from=build /app/target/userregistryapi-0.0.1-SNAPSHOT.jar ${LAMBDA_TASK_ROOT}/lib/
+COPY --from=build /app/target/dependency/BOOT-INF/classes/ ${LAMBDA_TASK_ROOT}/
 
-CMD [ "br.com.davyson.userregistryapi.StreamLambdaHandler::handleRequest" ]
+COPY --from=build /app/target/dependency/BOOT-INF/lib/ ${LAMBDA_TASK_ROOT}/lib/
+
+COPY --from=build /app/target/dependency/META-INF/ ${LAMBDA_TASK_ROOT}/META-INF/
+
+CMD [ "br.com.davyson.userregistryapi.config.aws.StreamLambdaHandler::handleRequest" ]

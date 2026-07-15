@@ -6,7 +6,7 @@ import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
 import com.amazonaws.serverless.proxy.spring.SpringBootLambdaContainerHandler;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
-import jakarta.ws.rs.core.Application;
+import br.com.davyson.userregistryapi.UserregistryapiApplication;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +17,7 @@ public class StreamLambdaHandler implements RequestStreamHandler {
 
     static {
         try{
-            handler = SpringBootLambdaContainerHandler.getAwsProxyHandler(Application.class);
+            handler = SpringBootLambdaContainerHandler.getAwsProxyHandler(UserregistryapiApplication.class);
         }catch(ContainerInitializationException containerEx){
             throw new RuntimeException("Não foi possível iniciar a aplicação"+ containerEx.getMessage());
         }
