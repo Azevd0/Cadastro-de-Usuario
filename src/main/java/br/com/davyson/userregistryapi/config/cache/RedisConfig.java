@@ -8,6 +8,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -15,10 +16,10 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 
 import java.time.Duration;
-import java.util.Arrays;
 
 @Configuration
 @EnableCaching
+@Profile("dev")
 public class RedisConfig {
 
     @Bean
@@ -55,7 +56,7 @@ public class RedisConfig {
                 connectionFactory.getConnection().serverCommands().flushAll();
                 System.out.println("Cache limpo com sucesso!");
             } catch(Exception ex){
-                System.err.println("Falha ao limpar o cache:");
+                System.err.println("Falha ao limpar o cache: " + ex.getMessage());
             }
         };
     }

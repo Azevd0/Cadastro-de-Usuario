@@ -27,7 +27,7 @@ public class UserService {
         User newUser = new User();
         newUser.setName(request.name());
         newUser.setDocument(request.document());
-        newUser.setEmail(request.email());
+        newUser.setEmail(request.email().toLowerCase());
         newUser.setPassword(passwordEncoder.encode(request.password()));
 
         userRepoitory.save(newUser);
